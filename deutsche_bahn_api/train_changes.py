@@ -15,5 +15,5 @@ class TrainChanges:
         self.arrival = None
         self.passed_stations = None
         self.stations = None
-        self.platforms = None
+        self.platform = None
         self.messages = []
