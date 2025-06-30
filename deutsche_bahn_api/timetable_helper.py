@@ -23,7 +23,7 @@ class TimetableHelper:
 
     def get_timetable_xml(self, hour: Optional[int] = None, date: Optional[datetime] = None) -> str:
         hour_date: datetime = datetime.now()
-        if hour:
+        if hour is not None:
             hour_date = datetime.strptime(str(hour), "%H")
         date_string: str = datetime.now().strftime("%y%m%d")
         if date is not None:
