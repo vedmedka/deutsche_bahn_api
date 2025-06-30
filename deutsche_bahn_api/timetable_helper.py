@@ -72,6 +72,8 @@ class TimetableHelper:
                     train_object.train_line = departure_object['l']
             elif arrival_object:
                 train_object.platform = arrival_object['pp']
+                if "l" in arrival_object:
+                    train_object.train_line = arrival_object['l']
             else:
                 """Neither arriving nor departing. Ignore."""
                 continue
