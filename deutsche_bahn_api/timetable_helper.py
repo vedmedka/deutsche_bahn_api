@@ -111,26 +111,45 @@ class TimetableHelper:
 
             for changes in changed_train:
                 if changes.tag == "dp":
+                    # Changed departure time
                     if "ct" in changes.attrib:
                         train_changes.departure = changes.attrib["ct"]
+                    # Changed path
                     if "cpth" in changes.attrib:
                         train_changes.stations = changes.attrib["cpth"]
+                    # Changed platform
                     if "cp" in changes.attrib:
                         train_changes.platform = changes.attrib["cp"]
+                    # Changed status: p - PLANNED, a - ADDED, c - CANCELLED
+                    if "cs" in changes.attrib:
+                        train_changes.departure_status = changes.attrib["cs"]
+                    # Cancellation time
+                    if "clt" in changes.attrib:
+                        train_changes.departure_cancellation_time = changes.attrib["clt"]
 
                 if changes.tag == "ar":
+                    # Changed arrival time
                     if "ct" in changes.attrib:
                         train_changes.arrival = changes.attrib["ct"]
                     if "cpth" in changes.attrib:
                         train_changes.passed_stations = changes.attrib["cpth"]
+                    if "cp" in changes.attrib:
+                        train_changes.platform = changes.attrib["cp"]
+                    # Changed status: p - PLANNED, a - ADDED, c - CANCELLED
+                    if "cs" in changes.attrib:
+                        train_changes.arrival_status = changes.attrib["cs"]
+                    # Cancellation time
+                    if "clt" in changes.attrib:
+                        train_changes.arrival_cancellation_time = changes.attrib["clt"]
 
                 for message in changes:
-                    new_message = Message()
-                    new_message.id = message.attrib["id"]
-                    new_message.code = message.attrib["c"]
-                    new_message.time = message.attrib["ts"]
-                    new_message.message = resolve_message_by_code(int(message.attrib["c"]))
-                    train_changes.messages.append(new_message)
+                    if message.tag == 'm':
+                        new_message = Message()
+                        new_message.id = message.attrib["id"]
+                        new_message.code = message.attrib["c"]
+                        new_message.time = message.attrib["ts"]
+                        new_message.message = resolve_message_by_code(int(message.attrib["c"]))
+                        train_changes.messages.append(new_message)
 
             found_train.train_changes = train_changes
             train_list.append(found_train)
