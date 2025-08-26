@@ -30,12 +30,13 @@ class TimetableHelper:
         if date is not None:
             date_string = date.strftime("%y%m%d")
         hour: str = hour_date.strftime("%H")
+        request_url: str = f"{self._baseurl}/plan/{self.station.EVA_NR}/{date_string}/{hour}"
         response = requests.get(
-            f"{self._baseurl}/plan/{self.station.EVA_NR}/{date_string}/{hour}",
+            request_url,
             headers=self.api_authentication.get_headers()
         )
-        if response.status_code == 410:
-            return self.get_timetable_xml(int(hour), datetime.now() + timedelta(days=1))
+        if response.status_code == 404:
+            raise Exception(f"Page {request_url} not found.")
         elif response.status_code == 401:
             raise Exception("Can't request timetable because the credentials are not correct. Please make sure that "
                             "you providing the correct credentials.")
