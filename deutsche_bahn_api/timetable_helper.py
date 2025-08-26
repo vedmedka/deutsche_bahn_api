@@ -17,9 +17,10 @@ class TimetableHelper:
     station: Station
     api_authentication: ApiAuthentication
 
-    def __init__(self, station: Station, api_authentication: ApiAuthentication) -> None:
+    def __init__(self, station: Station, api_authentication: ApiAuthentication, baseurl: str = None) -> None:
         self.station = station
         self.api_authentication = api_authentication
+        self._baseurl = baseurl or "https://apis.deutschebahn.com/db-api-marketplace/apis/timetables/v1"
 
     def get_timetable_xml(self, hour: Optional[int] = None, date: Optional[datetime] = None) -> str:
         hour_date: datetime = datetime.now()
@@ -30,8 +31,7 @@ class TimetableHelper:
             date_string = date.strftime("%y%m%d")
         hour: str = hour_date.strftime("%H")
         response = requests.get(
-            f"https://apis.deutschebahn.com/db-api-marketplace/apis/timetables/v1"
-            f"/plan/{self.station.EVA_NR}/{date_string}/{hour}",
+            f"{self._baseurl}/plan/{self.station.EVA_NR}/{date_string}/{hour}",
             headers=self.api_authentication.get_headers()
         )
         if response.status_code == 410:
@@ -91,7 +91,7 @@ class TimetableHelper:
 
     def get_timetable_changes(self, trains: list) -> list[Train]:
         response = requests.get(
-            f"https://apis.deutschebahn.com/db-api-marketplace/apis/timetables/v1/fchg/{self.station.EVA_NR}",
+            f"{self._baseurl}/fchg/{self.station.EVA_NR}",
             headers=self.api_authentication.get_headers()
         )
         changed_trains = elementTree.fromstringlist(response.text)
