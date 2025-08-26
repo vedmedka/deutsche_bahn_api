@@ -21,6 +21,8 @@ class TimetableHelper:
         self.station = station
         self.api_authentication = api_authentication
         self._baseurl = baseurl or "https://apis.deutschebahn.com/db-api-marketplace/apis/timetables/v1"
+        self._last_raw_plan_response_text: str | None = None
+        self._last_raw_timetable_changes_response_text: str | None = None
 
     def get_timetable_xml(self, hour: Optional[int] = None, date: Optional[datetime] = None) -> str:
         hour_date: datetime = datetime.now()
@@ -43,6 +45,8 @@ class TimetableHelper:
         elif response.status_code != 200:
             raise Exception("Can't request timetable! The request failed with the HTTP status code {}: {}"
                             .format(response.status_code, response.text))
+
+        self._last_raw_plan_response_text = response.text
         return response.text
 
     def get_timetable(self, hour: Optional[int] = None, date: Optional[datetime] = None) -> list[Train]:
@@ -95,6 +99,7 @@ class TimetableHelper:
             f"{self._baseurl}/fchg/{self.station.EVA_NR}",
             headers=self.api_authentication.get_headers()
         )
+        self._last_raw_timetable_changes_response_text = response.text
         changed_trains = elementTree.fromstringlist(response.text)
 
         train_list: list[Train] = []
@@ -156,3 +161,9 @@ class TimetableHelper:
             train_list.append(found_train)
 
         return train_list
+
+    def get_last_raw_plan_response_text(self) -> str | None:
+        return self._last_raw_plan_response_text
+
+    def get_last_raw_timetable_changes_response_text(self) -> str | None:
+        return self._last_raw_timetable_changes_response_text
